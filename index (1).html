@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>HUSSAIN BOT DEPLOYER</title>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@600;800&family=Share+Tech+Mono&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;font-family:'Poppins',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px 48px;overflow-x:hidden;}
+@keyframes scanMove{0%{top:-4px;}100%{top:100vh;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes glow{0%,100%{box-shadow:0 0 18px #00ff41,0 0 36px #00ff4133;}50%{box-shadow:0 0 30px #00ff41,0 0 60px #00ff4155;}}
+@keyframes glowTxt{0%,100%{text-shadow:0 0 10px #00ff41,0 0 20px #00ff4166;}50%{text-shadow:0 0 22px #00ff41,0 0 44px #00ff41;}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes borderPulse{0%,100%{border-color:#00ff4133;}50%{border-color:#00ff4177;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes statusFade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.scan{position:fixed;left:0;right:0;height:3px;background:linear-gradient(transparent,#00ff4144,transparent);pointer-events:none;z-index:0;animation:scanMove 9s linear infinite;}
+.grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.corner{position:fixed;width:56px;height:56px;border-color:#00ff4133;border-style:solid;pointer-events:none;z-index:0;}
+.tl{top:14px;left:14px;border-width:2px 0 0 2px;}.tr{top:14px;right:14px;border-width:2px 2px 0 0;}
+.bl{bottom:14px;left:14px;border-width:0 0 2px 2px;}.br{bottom:14px;right:14px;border-width:0 2px 2px 0;}
+
+.card{width:100%;max-width:440px;background:rgba(0,16,0,.9);border:1px solid #00ff4133;border-radius:24px;padding:38px 30px 34px;position:relative;z-index:1;animation:fadeUp .45s ease forwards,borderPulse 3s ease infinite;}
+.logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:32px;}
+.logo-img{width:90px;height:90px;border-radius:20px;border:2px solid #00ff4155;object-fit:cover;margin-bottom:14px;animation:glow 3s ease infinite;}
+.title{font-family:'Jost',sans-serif;font-size:26px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:#00ff41;animation:glowTxt 3s ease infinite;}
+.cursor{display:inline-block;width:8px;height:15px;background:#00ff41;margin-left:5px;vertical-align:middle;animation:blink 1s step-end infinite;}
+.sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:#00ff4155;letter-spacing:3px;margin-top:5px;}
+
+.field{margin-bottom:16px;}
+.lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:#00ff4188;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:7px;}
+.inp{width:100%;padding:13px 18px;border-radius:10px;border:1px solid #00ff4133;background:rgba(0,255,65,.04);color:#00ff41;font-family:'Share Tech Mono',monospace;font-size:14px;outline:none;transition:all .2s;box-sizing:border-box;}
+.inp:focus{border-color:#00ff4177;background:rgba(0,255,65,.08);box-shadow:0 0 16px #00ff4111;}
+.inp::placeholder{color:#00ff4133;}
+
+.btn{width:100%;padding:15px;border-radius:10px;border:1px solid #00ff41;background:linear-gradient(135deg,#001400,#002800);color:#00ff41;font-family:'Jost',sans-serif;font-weight:800;font-size:14px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;animation:glow 3s ease infinite;}
+.btn:hover{background:linear-gradient(135deg,#002800,#004400);}
+.btn:disabled{opacity:.45;cursor:not-allowed;animation:none;}
+
+.spinner{width:16px;height:16px;border:2px solid #00ff4155;border-top-color:#00ff41;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+
+.stat-box{margin-top:16px;padding:14px 16px;border-radius:10px;font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:600;text-align:center;letter-spacing:1px;display:none;animation:statusFade .3s ease forwards;}
+.stat-ok{background:rgba(0,255,65,.07);border:1px solid #00ff4155;color:#00ff41;}
+.stat-err{background:rgba(255,0,0,.07);border:1px solid #ff000055;color:#ff4444;}
+
+.bot-info{margin-top:16px;padding:16px;border-radius:12px;border:1px solid #00ff4133;background:rgba(0,255,65,.03);display:none;animation:statusFade .3s ease forwards;}
+.bot-info-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff41;letter-spacing:.5px;}
+.bot-info-row:last-child{margin-bottom:0;}
+.bi-label{color:#00ff4166;width:90px;flex-shrink:0;}
+.stop-btn{width:100%;padding:11px;border-radius:10px;border:1px solid #ff444455;background:rgba(255,68,68,.07);color:#ff4444;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.stop-btn:hover{border-color:#ff4444;background:rgba(255,68,68,.12);}
+
+.div{display:flex;align-items:center;gap:12px;margin:22px 0;}
+.dline{flex:1;height:1px;background:#00ff4122;}
+.dtxt{font-family:'Share Tech Mono',monospace;font-size:8px;color:#00ff4144;letter-spacing:2px;white-space:nowrap;}
+
+.info{padding:14px 16px;border-radius:10px;border:1px solid #00ff4122;background:rgba(0,255,65,.025);}
+.irow{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;font-family:'Share Tech Mono',monospace;font-size:10px;color:#00ff4166;letter-spacing:.5px;line-height:1.5;}
+.irow:last-child{margin-bottom:0;}
+.dot{width:5px;height:5px;border-radius:50%;background:#00ff41;margin-top:4px;flex-shrink:0;}
+
+.footer{text-align:center;margin-top:28px;font-family:'Share Tech Mono',monospace;font-size:8px;color:#00ff4122;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="grid"></div>
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+
+<div class="card">
+  <div class="logo-wrap">
+    <img src="https://raw.createusercontent.com/ad063863-91fd-47e3-b4b7-4ca10b2a907f/" class="logo-img" alt="HUSSAIN BOT" onerror="this.style.display='none'">
+    <div class="title">HUSSAIN BOT<span class="cursor"></span></div>
+    <div class="sub">TELEGRAM BOT DEPLOYER // v2.0 NETLIFY</div>
+  </div>
+
+  <div class="field">
+    <label class="lbl">▸ BOT TOKEN</label>
+    <input class="inp" type="password" id="tok" placeholder="123456789:ABC-DEF1234ghIkl-zyx...">
+  </div>
+  <div class="field">
+    <label class="lbl">▸ ADMIN CHAT ID</label>
+    <input class="inp" type="text" id="cid" placeholder="123456789">
+  </div>
+
+  <button class="btn" id="depBtn" onclick="deploy()">
+    <span id="spin" class="spinner"></span>
+    <span id="btnTxt">⬡ DEPLOY BOT</span>
+  </button>
+
+  <div id="statBox" class="stat-box"></div>
+
+  <div id="botInfo" class="bot-info">
+    <div class="bot-info-row"><span class="bi-label">Bot:</span><span id="biName">—</span></div>
+    <div class="bot-info-row"><span class="bi-label">Status:</span><span style="color:#00ff41">● ACTIVE</span></div>
+    <div class="bot-info-row"><span class="bi-label">Expires:</span><span id="biExp">7 days</span></div>
+    <div class="bot-info-row"><span class="bi-label">Webhook:</span><span style="color:#00ff4188;font-size:9px;" id="biWh">—</span></div>
+    <button class="stop-btn" onclick="stopBot()">⬡ STOP BOT / DELETE WEBHOOK</button>
+  </div>
+
+  <div class="div"><div class="dline"></div><span class="dtxt">BOT INSTRUCTIONS</span><div class="dline"></div></div>
+  <div class="info">
+    <div class="irow"><span class="dot"></span>Bot Token: @BotFather se lo Telegram par</div>
+    <div class="irow"><span class="dot"></span>Chat ID: @userinfobot ko /start bhejo</div>
+    <div class="irow"><span class="dot"></span>Deploy ke baad bot 7 din active rahega</div>
+    <div class="irow"><span class="dot"></span>/num 03XXXXXXXXX — Phone number search</div>
+    <div class="irow"><span class="dot"></span>/cnic XXXXX-XXXXXXX-X — CNIC search</div>
+    <div class="irow"><span class="dot"></span>Seedha number ya CNIC bhi type kar sakte ho</div>
+  </div>
+</div>
+
+<div class="footer">HUSSAIN BOT SYSTEM © 2026 // POWERED BY NETLIFY + NEON</div>
+
+<script>
+let currentToken = '';
+
+async function deploy() {
+  const tok = document.getElementById('tok').value.trim();
+  const cid = document.getElementById('cid').value.trim();
+  if (!tok || !cid) { showStat('❌ Bot Token aur Chat ID dono zaroori hain!', false); return; }
+
+  setLoading(true);
+  hideStat(); hideInfo();
+
+  try {
+    const r = await fetch('/api/bot/deploy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bot_token: tok, chat_id: cid })
+    });
+    const d = await r.json();
+    if (d.success) {
+      currentToken = tok;
+      showStat('✅ BOT DEPLOYED! 7 Din Ke Liye Active Hai.', true);
+      showInfo(d);
+    } else {
+      showStat('❌ ' + (d.error || 'Deploy fail!'), false);
+    }
+  } catch (e) {
+    showStat('❌ Connection Error! Netlify se connect nahi hua.', false);
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function stopBot() {
+  if (!currentToken) return;
+  if (!confirm('Bot stop karein? Webhook delete ho jaayega.')) return;
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${currentToken}/deleteWebhook`, { method: 'POST' });
+    const d = await r.json();
+    if (d.ok) { showStat('🛑 Bot stopped! Webhook deleted.', true); hideInfo(); currentToken = ''; }
+    else { showStat('❌ Stop failed: ' + d.description, false); }
+  } catch { showStat('❌ Error stopping bot.', false); }
+}
+
+function setLoading(v) {
+  document.getElementById('depBtn').disabled = v;
+  document.getElementById('spin').style.display = v ? 'block' : 'none';
+  document.getElementById('btnTxt').textContent = v ? 'DEPLOYING...' : '⬡ DEPLOY BOT';
+}
+
+function showStat(msg, ok) {
+  const b = document.getElementById('statBox');
+  b.textContent = msg; b.className = 'stat-box ' + (ok ? 'stat-ok' : 'stat-err'); b.style.display = 'block';
+}
+function hideStat() { document.getElementById('statBox').style.display = 'none'; }
+function hideInfo() { document.getElementById('botInfo').style.display = 'none'; }
+
+function showInfo(d) {
+  document.getElementById('biName').textContent = d.bot_username ? '@' + d.bot_username : d.bot_name || '—';
+  const exp = new Date(); exp.setDate(exp.getDate() + 7);
+  document.getElementById('biExp').textContent = exp.toLocaleDateString('en-PK');
+  document.getElementById('biWh').textContent = (d.webhook_url || '').substring(0, 50) + '...';
+  document.getElementById('botInfo').style.display = 'block';
+}
+</script>
+</body>
+</html>

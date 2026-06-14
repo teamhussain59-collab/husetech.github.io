@@ -1,0 +1,12 @@
+{
+  "name": "hussain-bot-deployer",
+  "version": "2.0.0",
+  "description": "Telegram Bot Deployer — Netlify + Neon PostgreSQL",
+  "private": true,
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

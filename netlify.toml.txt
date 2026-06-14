@@ -1,0 +1,39 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+  command = ""
+
+[dev]
+  functions = "netlify/functions"
+  port = 8888
+
+[[redirects]]
+  from = "/api/bot/deploy"
+  to = "/.netlify/functions/deploy"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/bot/webhook/*"
+  to = "/.netlify/functions/webhook"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/db/init"
+  to = "/.netlify/functions/db-init"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/bot/status"
+  to = "/.netlify/functions/status"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
